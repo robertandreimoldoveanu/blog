@@ -1,0 +1,81 @@
+---
+title: "Dynamic route params using route UrlMatcher"
+createdOn: "January 2, 2023"
+summary: "How it works + some use cases of the Angular UrlMatcher"
+tags:
+---
+
+<h2 className="text-2sm">How does it work</h2>
+
+<p>I always thought we understand best by examples, so we’ll start with snippets of code and take them apart afterwards.</p>
+
+<figure>
+    <img src="../images/route-matcher/fig1.png" title="Fig. 1 - Simple route matcher" />
+    <figcaption>Fig. 1 - Simple route matcher</figcaption>
+</figure>
+
+<p>In essence, the snippet above seems like an overcomplicated alternative to <code>path: &#39;something&#39;</code> ,
+    but you can also glimpse possibilities. The matcher function receives an array of URL segments, which are the pieces
+    composing a path, split by <code>/</code>. It must return <code>null</code> if no match is found, and an object with
+    the consumed segments if we do find a match. Because I had a simple route, I let Angular know I consumed all the
+    segments. If you have a scenario such as matching a parent route, you should only return the segments consumed by
+    the parent route, allowing the children to match their own paths. The function also takes an argument for a `UrlSegmentGroup` and
+    the route object definition, which I didn’t find a use case for, yet you might. </p>
+
+<figure>
+    <img src="../images/route-matcher/fig2.png" title="Fig. 2 - Matcher checking and returning a parameter" />
+    <figcaption>Fig. 2 - Matcher checking and returning a parameter</figcaption>
+</figure>
+
+<p>Another thing you can do is add a property named <code>posParams</code> in the response, like in Fig. 2. The above is
+    equivalent to <code>path: &#39;users/:userName&#39;</code> with the additional check that the user name should be an
+    alphanumeric string. </p>
+
+<p><strong>A note on the calling order:</strong> the matcher is called before any guard or resolver, and it <a
+        href="https://github.com/angular/angular/issues/26081">currently gets called multiple times</a>. </p>
+
+<h2>An example scenario</h2>
+
+<figure>
+    <img src="../images/route-matcher/fig3.png" title="Fig. 3 - Example of problem solved by UrlMatcher" />
+    <figcaption>Fig. 3 - Example of problem solved by UrlMatcher</figcaption>
+</figure>
+
+<p>Let’s say the UI is a file browser, where you can navigate and select a disk, a folder and then a file to view or edit.
+    Let’s also say that you want to save this state in the route, to navigate between files with cross-links, or link to
+    a specific file from an external app. </p>
+
+<p>When I encountered a similar scenario, the implementation in Fig. 3 was my first thought. As I found out soon enough,
+    that doesn’t cut it. <code>MyComponent</code> got destroyed and recreated every time I navigated between routes.</p>
+
+<p>This is because when the router matches a different route definition, it will execute that new definition, without
+    performing additional checks such as matching the oncoming component against the current one.</p>
+
+<h3>Use cases</h3>
+
+<p>While using <code>UrlMatcher</code> is a powerful strategy and can be used for multiple scenarios, I think many people would benefit just from knowing it can be used to keep a component
+    “alive” between navigations. </p>
+
+<figure>
+    <img src="../images/route-matcher/fig4.png" alt="Fig. 4 - Rewriting the routes from Fig. 3 using `matcher`" />
+    <figcaption>Fig. 4 - Rewriting the routes from Fig. 3 using `matcher`" </figcaption>
+</figure>
+
+Specific situations where you might use the `matcher`:
+
+<strong>1. Validating parameter values</strong>
+
+<p>When you want a parameter to have a particular structure (e.g.: exactly 32 characters, numbers only, GUID format) or you
+    want to differentiate based on the parameter (e.g.: if the param starts with ‘RO’ you set the Country to Romania, and so
+    on). While I didn’t detail this in Fig. 4, I included the <code>validateLocationSegments</code> that could check the
+    exact format of our parameters. The function `extractparams` is supposed to add the positional params only if they are defined, and in the proper order (e.g.: we cannot have a selected file without having a selected disk)</p>
+
+<strong>2. Ensuring parameter structure</strong>
+
+<p>When you want a nested structure that can be “incomplete”, yet you want it to match a route and render the same
+    component, like the “location” one described above. The rule for that would look like
+    <code>location/:disk/:folder/:file</code>. </p>
+
+<p>That’s it. </p>
+
+<p className="text-right mt-16">&#39;till next time</p>

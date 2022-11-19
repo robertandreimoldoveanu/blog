@@ -1,0 +1,30 @@
+---
+title: "Using pnpm"
+createdOn: "December 30, 2023"
+summary: "I wish I found out sooner about it"
+tags:
+---
+
+<p>As mentioned in my <a href="../about">about</a> page, I’m pretty comfortable with Angular. Naturally, I create lots of Angular projects for different purposes. </p>
+
+<p>We all know the memes about the <code>node_modules</code> folder being huge:</p>
+
+<figure><img src="../images/pnpm-post/nodemodules-meme.webp"/></figure>
+
+<p>I disliked constantly installing the same modules over and over again and have duplicates occupying disk space. Initially, I <a href="https://stackoverflow.com/a/43561012">used bash commands</a> to clear out <code>node_modules</code> in some of my stale projects, but you can see this approach is far from optimal, especially when there’s <code>pnpm</code> out there. </p>
+
+<h2>What’s pnpm?</h2>
+
+<p><em>Note: I’m just giving a quick, broad idea over the subject, so be sure to check <a href="https://pnpm.io/motivation">the official docs</a> if you want to learn more.</em></p>
+
+<p>It's a package manager, like <code>npm</code> or <code>yarn</code>. While <code>npm</code> will download new copies from the registry every time we install packages, and <code>yarn</code> will keep a cache on your computer and copy files from there, <code>pnpm</code> symbolically links the packages from a global package store to your project.</p>
+
+<p>This means you won’t bloat <code>node_modules</code> with your dependencies and their dependencies and so on, but instead have a listing of addresses pointing to the global <code>pnpm</code> store where they can be found. </p>
+
+<h2>How I use it</h2>
+
+<p>I just installed it with <code>brew install pnpnm</code>, and then ran <code>ng config --global cli.packageManager pnpm</code> to make sure the Angular CLI knows to use it every time I run <code>ng new</code>. </p>
+
+<p>That’s it. </p>
+
+<p className="text-right mt-16">&#39;till next time</p>
